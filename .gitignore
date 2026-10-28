@@ -1,0 +1,5 @@
+.DS_Store
+*.swp
+*~
+trust-snowflake.json
+snowflake-s3-read.json
