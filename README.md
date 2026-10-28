@@ -4,7 +4,9 @@ End-to-end analytics: **HIP-4 Reservoir → your S3 → Snowflake → (later) db
 
 **Current focus:** Phase 1–2 only — landing and Snowflake raw load. **No modeling yet.**
 
-→ **[plan.md](./plan.md)** — phased checklist and what’s deferred
+→ **[plan.md](./plan.md)** — phased checklist and what’s deferred  
+→ **[snowflake-setup-status.md](./snowflake-setup-status.md)** — integration `s3_outcome_int` done; IAM role pending  
+→ **[data-paths-reservoir-to-snowflake.md](./data-paths-reservoir-to-snowflake.md)** — Path A (your S3) vs Path B (no S3 archive)
 
 ## Phase 1–2 (now)
 

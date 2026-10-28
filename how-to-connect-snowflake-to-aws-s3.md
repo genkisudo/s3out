@@ -1,4 +1,8 @@
-# Connect Snowflake to your AWS S3 bucket
+# Connect Snowflake to your AWS S3 bucket (Path A)
+
+For **Path B** (no your-S3 archive, internal stage + `PUT`), see [data-paths-reservoir-to-snowflake.md](./data-paths-reservoir-to-snowflake.md).
+
+**Progress:** [snowflake-setup-status.md](./snowflake-setup-status.md) — storage integration `s3_outcome_int` is created in Snowflake; IAM role still required before `LIST @stage`.
 
 Snowflake cannot read Hydromancer Reservoir directly with **requester pays** on a normal external stage (no `RequestPayer` on `CREATE STAGE`). The path that matches this repo is:
 
@@ -30,6 +34,8 @@ You will also need:
 ---
 
 ## Step 1 — Storage integration (Snowflake)
+
+**Status:** Created in this project as `s3_outcome_int` (see [snowflake-setup-status.md](./snowflake-setup-status.md)). Re-run only if you need to recreate it.
 
 Pick an IAM role name in AWS (create the role in Step 2). Example role ARN:
 
@@ -143,7 +149,7 @@ aws iam put-role-policy \
   --profile main
 ```
 
-Use whichever AWS profile can create IAM roles (`main` vs `outcome` — IAM is usually on an admin profile, not the scoped `outcome-analytics` user).
+Use whichever AWS profile can create IAM roles (`main` vs `outcome` — IAM is usually on an admin profile, not the scoped `outcome-analytics` user). User `test` on profile `main` in account `436535002811` currently gets **AccessDenied** on `iam:CreateRole`; use the **IAM Console** as admin or an admin profile ([snowflake-setup-status.md](./snowflake-setup-status.md)).
 
 ---
 

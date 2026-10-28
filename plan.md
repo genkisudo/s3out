@@ -21,7 +21,7 @@ Phase 3+ (later)
          └── Prefect schedules copy + load (+ dbt when ready)
 ```
 
-Hydromancer cannot load straight into Snowflake ([requester pays](./how-to-reservoir-to-snowflake.md)). Your S3 bucket stays required for Phase 1–2.
+Hydromancer cannot load straight into Snowflake on a normal external stage ([requester pays](./how-to-reservoir-to-snowflake.md)). **Path A (recommended)** uses your S3 bucket; **Path B** uses internal stage + `PUT` without a raw lake — see [data-paths-reservoir-to-snowflake.md](./data-paths-reservoir-to-snowflake.md).
 
 **Data scope:** HIP-4 only — `global/fills/outcome/all/date=D/fills.parquet`. Not `global/fills/raw/`.
 
@@ -48,7 +48,8 @@ Hydromancer cannot load straight into Snowflake ([requester pays](./how-to-reser
 |---|---|
 | 1.1 | List newest `date=` under `global/fills/outcome/all/` (`--request-payer requester`) |
 | 1.2 | Copy partition with `--copy-props none` |
-| 1.3 | Optional: AWS budget alarm on account `436535002811` |
+| 1.3 | Example landed partition | Done — `2026-10-27` ([script](./scripts/copy-reservoir-outcome-fills-day.sh)) |
+| 1.4 | Optional: AWS budget alarm on account `436535002811` |
 
 **Docs:** [how-to-reservoir-to-snowflake.md](./how-to-reservoir-to-snowflake.md)
 
@@ -56,19 +57,19 @@ Hydromancer cannot load straight into Snowflake ([requester pays](./how-to-reser
 
 ---
 
-## Phase 2 — Snowflake ingest (next)
+## Phase 2 — Snowflake ingest (in progress)
 
-**Goal:** AWS account linked to Snowflake; Parquet in **your** S3 loaded into a **raw** table (regular table, not Iceberg).
+**Goal:** AWS account linked to Snowflake; Parquet in **your** S3 loaded into a **raw** table (regular table, not Iceberg). **Path A** — see [data-paths-reservoir-to-snowflake.md](./data-paths-reservoir-to-snowflake.md).
 
-| Step | Action |
-|---|---|
-| 2.1 | `CREATE STORAGE INTEGRATION` scoped to `raw/global/fills/outcome/` |
-| 2.2 | IAM role `snowflake-s3-outcome` (trust from `DESC INTEGRATION`) |
-| 2.3 | External stage on that prefix |
-| 2.4 | `LIST @stage` succeeds |
-| 2.5 | `COPY INTO` one day; row count sanity vs [sample day stats](./how-to-get-outcome-data-on-hyperliquid.md) |
-| 2.6 | Optional later: Snowpipe on `ObjectCreated` under same prefix |
-| 2.7 | Optional: `load_manifest` table (date, key, row_count, loaded_at) for idempotency |
+| Step | Action | Status |
+|---|---|---|
+| 2.1 | `CREATE STORAGE INTEGRATION` scoped to `raw/global/fills/outcome/` | Done — `s3_outcome_int` ([log](./snowflake-setup-status.md)) |
+| 2.2 | IAM role `snowflake-s3-outcome` (trust from `DESC INTEGRATION`) | Pending — needs AWS admin |
+| 2.3 | External stage on that prefix | Not started |
+| 2.4 | `LIST @stage` succeeds | Not started |
+| 2.5 | `COPY INTO` one day; row count sanity vs [sample day stats](./how-to-get-outcome-data-on-hyperliquid.md) | Not started |
+| 2.6 | Optional later: Snowpipe on `ObjectCreated` under same prefix | Deferred |
+| 2.7 | Optional: `load_manifest` table (date, key, row_count, loaded_at) for idempotency | Deferred |
 
 **Docs:** [how-to-connect-snowflake-to-aws-s3.md](./how-to-connect-snowflake-to-aws-s3.md)
 
@@ -139,7 +140,8 @@ Hydromancer cannot load straight into Snowflake ([requester pays](./how-to-reser
 | Phase | Document |
 |---|---|
 | 0–1 | [how-to-get-outcome-data-on-hyperliquid.md](./how-to-get-outcome-data-on-hyperliquid.md), [how-to-reservoir-to-snowflake.md](./how-to-reservoir-to-snowflake.md) |
-| 2 | [how-to-connect-snowflake-to-aws-s3.md](./how-to-connect-snowflake-to-aws-s3.md) |
+| 2 | [how-to-connect-snowflake-to-aws-s3.md](./how-to-connect-snowflake-to-aws-s3.md), [snowflake-setup-status.md](./snowflake-setup-status.md) |
+| Paths | [data-paths-reservoir-to-snowflake.md](./data-paths-reservoir-to-snowflake.md) (with / without your S3) |
 | 3 (plan) | [how-to-model-iceberg-in-snowflake.md](./how-to-model-iceberg-in-snowflake.md) |
 | Domain | [outcome-analytics-one-pager.md](./outcome-analytics-one-pager.md), [schema.md](./schema.md) |
 | Overview | [README.md](./README.md) |
